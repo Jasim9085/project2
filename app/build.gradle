@@ -32,7 +32,7 @@ android {
                 
             
                 // Deep Learning (choose one framework or use both if needed)
-                install "tflite-runtime"
+                
                 install "torch"
                 install "torchvision"
                 install "opencv-python"
