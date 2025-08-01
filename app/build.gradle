@@ -15,18 +15,12 @@ android {
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         python {
-            version "3.10"
+            version "3.12"
             pip {
                 // Core scientific stack
                 install "numpy"
-                install "pandas"
                 install "sympy"
-                install "mpmath"
-            
-                // Image and text processing
-                install "Pillow"
                 install "requests"
-                install "wikipedia"
                 install "matplotlib"
             }
         }
