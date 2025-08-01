@@ -28,23 +28,10 @@ android {
                 // Machine Learning & Data Science
                 install "matplotlib"
                 install "Pillow"
-                
-                
-            
-                // Deep Learning (choose one framework or use both if needed)
-                
-                install "torch"
-                install "torchvision"
-                install "opencv-python"
 
                 // Audio Processing
                 install "librosa"
                 install "pydub"
-            
-                // Data Storage & Interaction
-                install "SQLAlchemy"
-                install "lxml"
-                install "PyYAML"
             
                 // Advanced Utilities
                 install "networkx"
