@@ -35,7 +35,7 @@ jobs:
 
       - name: Build with Gradle
         # We can remove --no-daemon now as the clean state will solve the issue.
-        run: ./gradlew assembleDebug --rerun-tasks
+        run: ./gradlew clean assembleDebug --rerun-tasks
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
