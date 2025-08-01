@@ -30,7 +30,6 @@ android {
                 install "Pillow"
 
                 // Audio Processing
-                install "librosa"
                 install "pydub"
             
                 // Advanced Utilities
