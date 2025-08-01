@@ -30,6 +30,8 @@ jobs:
           echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
           echo "ndk.dir=${{ steps.setup_ndk.outputs.ndk-path }}" >> local.properties
 
+      - name: Clean Gradle
+        run: rm -rf ~/.gradle
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
