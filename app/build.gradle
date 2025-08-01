@@ -23,7 +23,7 @@ android {
                 install "pandas"
                 install "requests"
                 install "sympy"
-                install "chempy"
+                
             
                 // Machine Learning & Data Science
                 install "matplotlib"
