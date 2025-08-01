@@ -25,56 +25,9 @@ android {
             
                 // Image and text processing
                 install "Pillow"
-                install "pytesseract"
-                install "pydub"
-                install "SpeechRecognition"
-            
-                // HTTP and parsing
                 install "requests"
-                install "beautifulsoup4"
-                install "soupsieve"
                 install "wikipedia"
-            
-                // Google / AI APIs (text-level)
-                install "google-auth"
-                install "googleapis-common-protos"
-                install "proto-plus"
-            
-                // Required dependencies
-                install "six"
-                install "networkx"
-                install "charset_normalizer"
-                install "idna"
-                install "urllib3"
-                install "certifi"
-                install "tzdata"
-                install "python-dateutil"
-            
-                // Matplotlib and its dependencies (fully supported)
                 install "matplotlib"
-                install "cycler"
-                install "kiwisolver"
-                install "pyparsing"
-                install "packaging"
-            
-                // Formatting & utilities
-                install "pygments"
-                install "markdown"
-                install "pyyaml"
-                install "tabulate"
-                install "dateparser"
-                install "typing-inspection"
-            
-                // XML/HTML and document parsing
-                install "lxml"
-                install "html5lib"
-                install "python-docx"
-                install "openpyxl"
-            
-                // Platform & misc
-                install "platformdirs"
-                install "filetype"
-                install "emoji"
             }
         }
         ndk {
