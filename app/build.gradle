@@ -17,25 +17,30 @@ android {
         python {
             version "3.10"
             pip {
+                // Core scientific stack
                 install "numpy"
                 install "pandas"
                 install "sympy"
                 install "mpmath"
             
+                // Image and text processing
                 install "Pillow"
                 install "pytesseract"
                 install "pydub"
                 install "SpeechRecognition"
             
+                // HTTP and parsing
                 install "requests"
                 install "beautifulsoup4"
                 install "soupsieve"
                 install "wikipedia"
             
+                // Google / AI APIs (text-level)
                 install "google-auth"
                 install "googleapis-common-protos"
                 install "proto-plus"
             
+                // Required dependencies
                 install "six"
                 install "networkx"
                 install "charset_normalizer"
@@ -45,29 +50,31 @@ android {
                 install "tzdata"
                 install "python-dateutil"
             
-                // Additional useful modules
-                install "matplotlib"              // Plotting and data visualization
-                install "cycler"                  // Used internally by matplotlib
-                install "kiwisolver"              // Required by matplotlib
-                install "pyparsing"               // Expression parsing for config files
-                install "packaging"               // Package version parsing
+                // Matplotlib and its dependencies (fully supported)
+                install "matplotlib"
+                install "cycler"
+                install "kiwisolver"
+                install "pyparsing"
+                install "packaging"
             
-                install "pygments"                // Syntax highlighting
-                install "markdown"                // Markdown parser (useful for rendering outputs)
-                install "pyyaml"                  // YAML parser/loader
-                install "tabulate"                // Pretty-printing tables
-                install "dateparser"             // Natural language date parsing
-                install "typing-inspection"      // Type analysis helpers (used in modern LLM packages)
+                // Formatting & utilities
+                install "pygments"
+                install "markdown"
+                install "pyyaml"
+                install "tabulate"
+                install "dateparser"
+                install "typing-inspection"
             
-                install "lxml"                    // Fast XML/HTML parser (Chaquopy supports this!)
-                install "html5lib"               // HTML parser fallback
-                install "python-docx"            // DOCX file reading/writing
-                install "openpyxl"               // XLSX file reader/writer (Excel)
+                // XML/HTML and document parsing
+                install "lxml"
+                install "html5lib"
+                install "python-docx"
+                install "openpyxl"
             
-                install "platformdirs"           // Cross-platform cache/config paths
-            
-                install "filetype"               // Guess file type by binary signature
-                install "emoji"                  // Emoji conversion utilities
+                // Platform & misc
+                install "platformdirs"
+                install "filetype"
+                install "emoji"
             }
         }
         ndk {
