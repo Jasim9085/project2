@@ -38,7 +38,7 @@ android {
                 install "pytesseract"
                 
                 // Generative AI & Web Services
-                install "google-generativeai"
+                
                 install "wikipedia"
                 install "beautifulsoup4"
             }
