@@ -64,7 +64,6 @@ android {
                 install "python-docx"            // DOCX file reading/writing
                 install "openpyxl"               // XLSX file reader/writer (Excel)
             
-                install "psutil"                 // System monitoring tools
                 install "platformdirs"           // Cross-platform cache/config paths
             
                 install "filetype"               // Guess file type by binary signature
