@@ -1,0 +1,87 @@
+plugins {
+    id 'com.android.application'
+    id 'com.chaquo.python'
+}
+
+android {
+    namespace 'com.chaquo.python.console'
+    compileSdk = 35
+    ndkVersion "26.1.10909125"
+    defaultConfig {
+        applicationId "com.chaquo.python.console"
+        minSdk = 24
+        targetSdk = 35
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        python {
+            version "3.10"
+            pip {
+                // Your existing packages
+                install "six"
+                install "numpy==1.24.3"
+                install "pandas==2.0.2"
+                install "requests"
+                install "sympy"
+                install "chempy"
+            
+                // Machine Learning & Data Science
+                install "matplotlib"
+                install "Pillow"
+                install "scipy==1.10.1"
+                install "scikit-learn==1.3.0"
+            
+                // Deep Learning (choose one framework or use both if needed)
+                install "tflite-runtime"
+                install "torch"
+                install "torchvision"
+                install "opencv-python"
+
+                // Audio Processing
+                install "librosa"
+                install "pydub"
+            
+                // Data Storage & Interaction
+                install "SQLAlchemy"
+                install "lxml"
+                install "PyYAML"
+            
+                // Advanced Utilities
+                install "networkx"
+                install "SpeechRecognition"
+                install "pytesseract"
+                
+                // Generative AI & Web Services
+                install "google-generativeai"
+                install "wikipedia"
+                install "beautifulsoup4"
+            }
+        }
+        ndk {
+            abiFilters "arm64-v8a", "x86_64"
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
+    testImplementation 'androidx.arch.core:core-testing:2.0.0'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
+}

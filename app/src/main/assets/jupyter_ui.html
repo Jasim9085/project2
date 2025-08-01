@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <!-- Prism Core CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/themes/prism-tomorrow.min.css">
+    
+    <!-- Prism Core JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/prism.min.js"></script>
+
+    <!-- Language-specific components for Prism -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/components/prism-css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/components/prism-markup.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/components/prism-markup-templating.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/components/prism-php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/components/prism-java.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/components/prism-c.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/components/prism-cpp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/components/prism-kotlin.min.js"></script>
+    
+    <title>Enhanced Notebook Editor</title>
+    <style>
+        :root {
+            --primary-bg: #1e1e1e;
+            --secondary-bg: #282a36;
+            --header-bg: #21222C;
+            --text-color: #f8f8f2;
+            --ghost-text-color: #6d6d6d;
+            --cell-bg: #282a36;
+            --output-bg: #1e1e1e;
+            --border-color: #44475a;
+            --accent-color: #6272a4;
+            --toggle-on: #4CAF50;
+            --toggle-off: #f44336;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--primary-bg);
+            color: var(--text-color);
+        }
+
+        header {
+            background-color: var(--header-bg);
+            padding: 8px 12px;
+            flex-shrink: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .header-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+        
+        .header-controls > .control-group:first-child {
+            margin-right: auto;
+        }
+        
+        .header-controls > .control-group:nth-child(2) {
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        #load-btn.load-btn {
+            margin-left: auto;
+        }
+        
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-right: 8px;
+        }
+        
+        .control-label {
+            font-size: 0.85em;
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+        
+        .notebook-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 8px 0;
+        }
+        
+        .cell {
+            margin: 10px;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: var(--cell-bg);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            transition: transform 0.2s ease;
+        }
+        
+        .cell:hover {
+            transform: translateY(-2px);
+        }
+        
+        .cell-header {
+            background-color: var(--border-color);
+            padding: 8px 12px;
+            font-weight: 600;
+            font-size: 0.9em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .cell-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .cell-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 0.85em;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .cell-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+        
+        .cell-btn.run::before {
+            content: "▶";
+            margin-right: 5px;
+            font-size: 0.8em;
+        }
+        
+        .cell-btn.delete::before {
+            content: "×";
+            margin-right: 5px;
+            font-weight: bold;
+        }
+        
+        .cell-btn.add::before {
+            content: "+";
+            margin-right: 5px;
+            font-weight: bold;
+        }
+        
+        .cell-editor {
+            position: relative;
+        }
+        
+        .editor-instance {
+            height: 160px;
+            min-height: 60px;
+            width: 100%;
+        }
+        
+        .cell-output {
+            background-color: var(--output-bg);
+            padding: 10px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            border-top: 1px solid var(--border-color);
+            min-height: 30px;
+            max-height: 300px;
+            overflow-y: auto;
+            line-height: 1.4;
+        }
+        
+        .cell-output.empty {
+            color: var(--ghost-text-color);
+            font-style: italic;
+            padding: 12px;
+        }
+        
+        .ghost-text {
+            position: absolute;
+            color: var(--ghost-text-color);
+            pointer-events: none;
+            white-space: pre;
+            z-index: 10;
+            display: none;
+            font-size: 14px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            padding-left: 4px;
+            opacity: 0.7;
+        }
+        
+        .load-btn, .theme-select, .color-mode-btn, .toggle-btn {
+            padding: 6px 12px;
+            background-color: var(--accent-color);
+            color: var(--text-color);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: 600;
+            height: 32px;
+            transition: all 0.2s ease;
+        }
+        .load-btn {
+            justify-content: end;
+        }
+        .theme-select {
+            background-color: var(--header-bg);
+            border: 1px solid var(--accent-color);
+            min-width: 140px;
+        }
+        
+        .color-mode-btn, .toggle-btn {
+            width: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1em;
+        }
+        
+        .toggle-btn.on {
+            background-color: var(--toggle-on);
+        }
+        
+        .toggle-btn.off {
+            background-color: var(--toggle-off);
+        }
+        
+        .add-cell-btn {
+            margin: 12px;
+            padding: 10px;
+            text-align: center;
+            background-color: rgba(98, 114, 164, 0.2);
+            color: var(--text-color);
+            border: 2px dashed var(--accent-color);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .add-cell-btn:hover {
+            background-color: rgba(98, 114, 164, 0.3);
+            transform: scale(1.02);
+        }
+        
+        .status-bar {
+            padding: 8px 16px;
+            background-color: var(--header-bg);
+            border-top: 1px solid var(--border-color);
+            font-size: 0.85em;
+            color: var(--ghost-text-color);
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .ai-assistant-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .ai-btn {
+            background-color: rgba(139, 92, 246, 0.2);
+            color: #8b5cf6;
+        }
+        
+        .ai-btn:hover {
+            background-color: rgba(139, 92, 246, 0.3);
+        }
+        
+        .ai-dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: var(--header-bg);
+            min-width: 180px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            z-index: 100;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .ai-dropdown-content div {
+            color: var(--text-color);
+            padding: 8px 12px;
+            text-decoration: none;
+            display: block;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: background-color 0.2s;
+        }
+        
+        .ai-dropdown-content div:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+        
+        .ai-dropdown-content .divider {
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 4px 0;
+            padding: 0;
+            cursor: default;
+        }
+        
+        .ai-assistant-dropdown:hover .ai-dropdown-content {
+            display: block;
+        }
+        
+        .ai-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+        }
+        
+        .ai-modal-content {
+            background-color: var(--secondary-bg);
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        
+        .ai-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .ai-modal-title {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        
+        .close-ai-modal {
+            color: var(--text-color);
+            font-size: 1.5em;
+            cursor: pointer;
+        }
+        
+        .ai-response {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            white-space: normal;
+            font-size: 14px;
+            line-height: 1.7;
+            color: #f0f0f0;
+        }
+        
+        .code-block {
+            background-color: rgba(0,0,0,0.2);
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        
+        .ai-settings-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .ai-settings-form label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+        
+        .ai-settings-form input {
+            width: 100%;
+            padding: 8px;
+            background-color: var(--primary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-color);
+        }
+        
+        .ai-settings-form button {
+            padding: 8px;
+            background-color: var(--accent-color);
+            color: var(--text-color);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .code-wrapper {
+          background-color: #1e1e2e;
+          border-radius: 6px;
+          margin: 16px 0;
+          position: relative;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          overflow: hidden;
+        }
+
+        .code-wrapper pre[class*="language-"] {
+          margin: 0 !important;
+          padding: 12px !important;
+          background: none !important;
+          border: none !important;
+          font-size: 13px !important;
+          line-height: 1.5 !important;
+          white-space: pre-wrap;
+        }
+
+        .copy-btn {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          font-size: 11px;
+          padding: 4px 9px;
+          background: #4a4a5e;
+          color: #fff;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          z-index: 2;
+        }
+        
+        .ai-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid #444;
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin: 10px 0;
+            font-size: 14px;
+            color: #ccc;
+            line-height: 1.6;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        }
+
+        .headline-card {
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 12px;
+            margin: 24px auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+            font-size: 1.1em;
+            font-weight: 600;
+            max-width: 90%;
+        }
+
+        .point-item {
+            margin-bottom: 24px;
+        }
+        
+        .point-headline {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .point-headline .point-title {
+            background-color: rgba(98, 114, 164, 0.3);
+            padding: 4px 10px;
+            border-radius: 5px;
+        }
+        
+        .ai-response p {
+            margin: 0 0 16px 0;
+            padding: 0;
+        }
+
+        .point-card {
+            background-color: rgba(255, 255, 255, 0.04);
+            border-left: 3px solid var(--accent-color);
+            box-shadow: 2px 3px 10px rgba(0,0,0,0.2);
+            border-radius: 0 6px 6px 0;
+            padding: 14px 14px 14px 18px;
+            margin-bottom: 20px;
+        }
+        
+        .point-card p {
+            margin: 8px 0 0 0;
+            color: #ccc;
+        }
+
+        .inline-code {
+            background-color: rgba(98, 114, 164, 0.25);
+            border: 1px solid rgba(98, 114, 164, 0.4);
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+            color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-controls">
+            <div class="control-group">
+                <select class="theme-select" id="theme-select">
+                    <option value="dracula">Dracula</option>
+                    <option value="monokai">Monokai</option>
+                    <option value="github">GitHub</option>
+                    <option value="tomorrow">Tomorrow</option>
+                    <option value="solarized_dark">Solarized Dark</option>
+                    <option value="solarized_light">Solarized Light</option>
+                    <option value="xcode">Xcode</option>
+                    <option value="textmate">Textmate</option>
+                    <option value="twilight">Twilight</option>
+                    <option value="cobalt">Cobalt</option>
+                </select>
+            </div>
+    
+            <div class="control-group center-group">
+                <button class="color-mode-btn" id="color-mode-btn">🌓</button>
+                <button class="toggle-btn on" id="ace-suggest-toggle">✓</button>
+            </div>
+    
+            <button id="load-btn" class="load-btn">LOAD IMPORTS</button>
+        </div>
+    </header>
+
+    <div class="notebook-container" id="notebook-container">
+        <!-- Cells will be added here dynamically -->
+    </div>
+
+    <div class="add-cell-btn" id="add-cell-btn">+ Add New Cell</div>
+    
+    <div class="status-bar">
+        <div id="status-message">Ready</div>
+        <div>Python 3 | Enhanced Editor</div>
+    </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.33.0/ace.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.33.0/ext-language_tools.js"></script>
+<script>
+    // This new function will be our entry point, called from Java.
+    function onAndroidReady() {
+        // --- ALL OF YOUR MAIN SCRIPT LOGIC IS NOW INSIDE THIS FUNCTION ---
+        // --- and the DOMContentLoaded wrapper is removed ---
+
+        const PRIMARY_MODULE_SOURCE = 'http://127.0.0.1:8080/modules/';
+        const FALLBACK_MODULE_SOURCE = 'https://your-fallback-https-server.com/modules/'; // Please update this placeholder
+
+        let availableKeywords = new Set();
+        let loadedModules = new Set(['basics']);
+        let availableModules = [];
+        let cells = [];
+        let cellCounter = 0;
+        
+        function updateStatus(message) {
+            document.getElementById('status-message').textContent = message;
+        }
+
+        async function fetchWithFallback(filename) {
+            const primaryUrl = PRIMARY_MODULE_SOURCE + filename;
+            const fallbackUrl = FALLBACK_MODULE_SOURCE + filename;
+            try {
+                updateStatus(`Fetching ${filename} from primary source...`);
+                const response = await fetch(primaryUrl, { mode: 'cors' });
+                if (!response.ok) {
+                    throw new Error(`Primary source failed with status: ${response.status}`);
+                }
+                const data = await response.json();
+                updateStatus(`${filename} loaded successfully.`);
+                return data;
+            } catch (primaryError) {
+                console.warn(`Primary fetch for ${filename} failed:`, primaryError.message);
+                updateStatus(`Primary source failed. Trying fallback for ${filename}...`);
+                try {
+                    const response = await fetch(fallbackUrl, { mode: 'cors' });
+                    if (!response.ok) {
+                        throw new Error(`Fallback source also failed with status: ${response.status}`);
+                    }
+                    const data = await response.json();
+                    updateStatus(`${filename} loaded from fallback source.`);
+                    return data;
+                } catch (fallbackError) {
+                    console.error(`Fallback fetch for ${filename} also failed:`, fallbackError.message);
+                    updateStatus(`Error: Could not load ${filename} from any source.`);
+                    return null;
+                }
+            }
+        }
+
+        function initializeNotebook() {
+            addNewCell();
+            updateStatus("Notebook ready");
+        }
+
+        function addNewCell(code = '', position = null) {
+            const cellId = `cell-${cellCounter++}`;
+            const notebookContainer = document.getElementById('notebook-container');
+            const cellElement = document.createElement('div');
+            cellElement.className = 'cell';
+            cellElement.id = cellId;
+            cellElement.innerHTML = `
+                <div class="cell-header">
+                  <span>Cell ${cellCounter}</span>
+                    <div class="cell-actions">
+                        <button class="cell-btn run" data-cell-id="${cellId}">Run</button>
+                        <div class="ai-assistant-dropdown">
+                            <button class="cell-btn ai-btn" data-cell-id="${cellId}">AI ▽</button>
+                            <div class="ai-dropdown-content">
+                                <div data-action="explain-error">Explain Error</div>
+                                <div data-action="explain-code">Explain Code</div>
+                                <div data-action="explain-module">Explain Module</div>
+                                <div data-action="generate-code">Generate Code</div>
+                                <div class="divider"></div>
+                                <div data-action="ai-settings">AI Settings</div>
+                            </div>
+                        </div>
+                        <button class="cell-btn add" data-cell-id="${cellId}">Add Below</button>
+                        <button class="cell-btn delete" data-cell-id="${cellId}">Delete</button>
+                    </div>
+                </div>
+                <div class="cell-editor">
+                    <div class="editor-instance" id="${cellId}-editor"></div>
+                    <div id="${cellId}-ghost-text" class="ghost-text"></div>
+                </div>
+                <div class="cell-output empty" id="${cellId}-output">No output</div>
+            `;
+            if (position !== null && position >= 0 && position < cells.length) {
+                notebookContainer.insertBefore(cellElement, notebookContainer.children[position]);
+                cells.splice(position, 0, cellId);
+            } else {
+                notebookContainer.appendChild(cellElement);
+                cells.push(cellId);
+            }
+            initializeCellEditor(cellId, code);
+            attachCellEventListeners(cellId);
+            setTimeout(() => {
+                const editor = document.getElementById(`${cellId}-editor`).editorInstance;
+                editor.focus();
+            }, 0);
+            updateStatus(`Added cell ${cellCounter}`);
+            return cellId;
+        }
+
+        function initializeCellEditor(cellId, initialCode = '') {
+            const editorElement = document.getElementById(`${cellId}-editor`);
+            const ghostTextEl = document.getElementById(`${cellId}-ghost-text`);
+            const editor = ace.edit(editorElement);
+            const savedTheme = localStorage.getItem('editorTheme') || 'dracula';
+            editor.setTheme(`ace/theme/${savedTheme}`);
+            document.getElementById('theme-select').value = savedTheme;
+            const aceSuggestEnabled = localStorage.getItem('aceSuggestEnabled') !== 'false';
+            updateAceSuggestions(editor, aceSuggestEnabled);
+            editor.session.setMode("ace/mode/python");
+            editor.setOptions({
+                fontSize: "14px",
+                fontFamily: "'Consolas', 'Monaco', monospace",
+                highlightActiveLine: true,
+                highlightGutterLine: true,
+                enableBasicAutocompletion: aceSuggestEnabled,
+                enableLiveAutocompletion: aceSuggestEnabled,
+                showPrintMargin: false
+            });
+            editor.setValue(initialCode, -1);
+            editorElement.editorInstance = editor;
+            let activeSuggestion = null;
+            let lastPrefix = '';
+            let lastCursorPos = null;
+            const clearSuggestion = () => {
+                activeSuggestion = null;
+                lastPrefix = '';
+                ghostTextEl.style.display = 'none';
+            };
+            const updateSuggestion = () => {
+                const cursorPos = editor.getCursorPosition();
+                const line = editor.session.getLine(cursorPos.row);
+                const lineUpToCursor = line.substring(0, cursorPos.column);
+                if (lastCursorPos && 
+                    lastCursorPos.row === cursorPos.row && 
+                    lastCursorPos.column === cursorPos.column) {
+                    return;
+                }
+                lastCursorPos = {...cursorPos};
+                const match = lineUpToCursor.match(/([\w.]+)$/);
+                const prefix = match ? match[0] : '';
+                if (prefix === lastPrefix) {
+                    return;
+                }
+                lastPrefix = prefix;
+                if (!prefix) {
+                    clearSuggestion();
+                    return;
+                }
+                const keywordsArray = Array.from(availableKeywords);
+                const suggestions = keywordsArray
+                    .filter(k => k.toLowerCase().startsWith(prefix.toLowerCase()))
+                    .sort((a, b) => {
+                        if (a.startsWith(prefix) && !b.startsWith(prefix)) return -1;
+                        if (!a.startsWith(prefix) && b.startsWith(prefix)) return 1;
+                        if (a.length !== b.length) return a.length - b.length;
+                        return a.localeCompare(b);
+                    });
+                if (suggestions.length > 0) {
+                    const suggestion = suggestions[0];
+                    activeSuggestion = suggestion.substring(prefix.length);
+                    const screenPos = editor.renderer.textToScreenCoordinates(cursorPos.row, cursorPos.column);
+                    const editorRect = editorElement.getBoundingClientRect();
+                    ghostTextEl.textContent = activeSuggestion;
+                    ghostTextEl.style.left = (screenPos.pageX - editorRect.left) + 'px';
+                    ghostTextEl.style.top = (screenPos.pageY - editorRect.top) + 'px';
+                    ghostTextEl.style.display = 'block';
+                } else {
+                    clearSuggestion();
+                }
+            };
+            editor.commands.addCommand({ name: 'acceptGhostSuggestionTab', bindKey: { win: 'Tab', mac: 'Tab' }, exec: (ed) => { if (activeSuggestion) { ed.insert(activeSuggestion); clearSuggestion(); return true; } return false; } });
+            editor.commands.addCommand({ name: 'acceptGhostSuggestionRight', bindKey: { win: 'Right', mac: 'Right' }, exec: (ed) => { const cursor = ed.getCursorPosition(); const lineLength = ed.session.getLine(cursor.row).length; if (activeSuggestion && cursor.column === lineLength) { ed.insert(activeSuggestion); clearSuggestion(); return true; } return false; } });
+            editor.commands.addCommand({ name: 'acceptGhostSuggestionEnter', bindKey: { win: 'Enter', mac: 'Enter' }, exec: (ed) => { const cursor = ed.getCursorPosition(); const line = ed.session.getLine(cursor.row); if (activeSuggestion && cursor.column === line.length) { ed.insert(activeSuggestion); clearSuggestion(); setTimeout(() => { ed.insert("\n"); }, 10); return true; } return false; } });
+            editor.on('change', () => setTimeout(updateSuggestion, 10));
+            editor.on('changeSelection', () => setTimeout(updateSuggestion, 10));
+            editor.session.on('changeScrollTop', clearSuggestion);
+            editor.session.on('changeScrollLeft', clearSuggestion);
+            editor.on('blur', clearSuggestion);
+            editor.on('mousedown', clearSuggestion);
+            return editor;
+        }
+
+        function updateAceSuggestions(editor, enabled) {
+            editor.setOptions({ enableBasicAutocompletion: enabled, enableLiveAutocompletion: enabled });
+            if (enabled) {
+                ace.require("ace/ext/language_tools");
+                editor.completers = [{
+                    getCompletions: function(editor, session, pos, prefix, callback) {
+                        const customCompletions = Array.from(availableKeywords).map(word => ({ caption: word, value: word, meta: "custom" }));
+                        callback(null, customCompletions);
+                    }
+                }];
+            } else {
+                editor.completers = [];
+            }
+        }
+
+        function attachCellEventListeners(cellId) {
+            document.querySelector(`button.cell-btn.run[data-cell-id="${cellId}"]`).addEventListener('click', () => runCell(cellId));
+            document.querySelector(`button.cell-btn.add[data-cell-id="${cellId}"]`).addEventListener('click', () => {
+                const cellIndex = cells.indexOf(cellId);
+                addNewCell('', cellIndex + 1);
+            });
+            document.querySelector(`button.cell-btn.delete[data-cell-id="${cellId}"]`).addEventListener('click', () => {
+                if (cells.length > 1) {
+                    document.getElementById(cellId).remove();
+                    cells = cells.filter(id => id !== cellId);
+                    updateStatus(`Deleted cell`);
+                } else {
+                    const editor = document.getElementById(`${cellId}-editor`).editorInstance;
+                    editor.setValue('');
+                    const outputElement = document.getElementById(`${cellId}-output`);
+                    outputElement.textContent = "No output";
+                    outputElement.className = "cell-output empty";
+                    updateStatus("Cleared cell");
+                }
+            });
+            const aiDropdown = document.querySelector(`#${cellId} .ai-dropdown-content`);
+            if (aiDropdown) {
+                aiDropdown.querySelectorAll('div[data-action]').forEach(item => {
+                    item.addEventListener('click', () => handleAIAction(cellId, item.getAttribute('data-action')));
+                });
+            }
+        }
+
+        function runCell(cellId) {
+            const editorElement = document.getElementById(`${cellId}-editor`);
+            const outputElement = document.getElementById(`${cellId}-output`);
+            const code = editorElement.editorInstance.getValue();
+            outputElement.textContent = "Executing...";
+            outputElement.classList.remove('empty');
+            updateStatus(`Executing ${cellId}...`);
+            checkForNewImports(code);
+            if (window.Android && typeof window.Android.runPythonCode === 'function') {
+                window.Android.runPythonCode(cellId, code);
+            } else {
+                const errorMessage = "Error: Android bridge not found. Cannot execute code.";
+                outputElement.textContent = errorMessage;
+                updateStatus("Execution failed");
+                console.error(errorMessage, "Is the app running in an Android WebView with the 'Android' JavascriptInterface added?");
+            }
+        }
+
+        function checkForNewImports(code) {
+            updateStatus("Scanning for imports...");
+            const moduleAliases = {};
+            const importPatterns = [
+                /^\s*import\s+([\w.]+)\s+as\s+(\w+)/gm,
+                /^\s*import\s+([\w\s,]+)(?:\s+as\s+(\w+))?/gm,
+                /^\s*from\s+([\w.]+)\s+import\s+([\w\s,]+)(?:\s+as\s+(\w+))?/gm,
+                /^\s*from\s+(\.+\w+)\s+import\s+([\w\s,]+)(?:\s+as\s+(\w+))?/gm
+            ];
+            const foundModules = new Set();
+            importPatterns.forEach(pattern => {
+                let match;
+                while ((match = pattern.exec(code)) !== null) {
+                    if (match[1] && match[2] && !match[3]) {
+                        const moduleName = match[1].split('.')[0];
+                        const alias = match[2];
+                        if (moduleName && alias) {
+                            foundModules.add(moduleName);
+                            moduleAliases[alias] = moduleName;
+                        }
+                    } else if (match[1] && match[2] && match[3]) {
+                        const moduleName = match[1].replace(/^\.+/, '').split('.')[0];
+                        const alias = match[3];
+                        if (moduleName && alias) {
+                            foundModules.add(moduleName);
+                            moduleAliases[alias] = moduleName;
+                        }
+                    } else if (match[1] && !match[2]) {
+                        match[1].split(',').forEach(module => {
+                            const moduleName = module.trim().split('.')[0];
+                            if (moduleName) foundModules.add(moduleName);
+                        });
+                    }
+                }
+            });
+            foundModules.forEach(moduleName => {
+                if (moduleName && availableModules.includes(moduleName) && !loadedModules.has(moduleName)) {
+                    updateStatus(`Loading ${moduleName} module...`);
+                    loadedModules.add(moduleName);
+                    fetchWithFallback(`${moduleName}.json`).then(data => {
+                        if (data) {
+                            addKeywords(data);
+                            Object.entries(moduleAliases).forEach(([alias, mod]) => {
+                                if (mod === moduleName) {
+                                    availableKeywords.add(alias);
+                                }
+                            });
+                            cells.forEach(cellId => {
+                                const editor = document.getElementById(`${cellId}-editor`).editorInstance;
+                                updateAceSuggestions(editor, localStorage.getItem('aceSuggestEnabled') !== 'false');
+                            });
+                        } else {
+                            loadedModules.delete(moduleName);
+                        }
+                    });
+                }
+            });
+        }
+        
+        document.getElementById('load-btn').addEventListener('click', function() {
+            updateStatus("Loading imports...");
+            cells.forEach(cellId => {
+                const editor = document.getElementById(`${cellId}-editor`).editorInstance;
+                checkForNewImports(editor.getValue());
+            });
+        });
+
+        document.getElementById('theme-select').addEventListener('change', function() {
+            const theme = this.value;
+            localStorage.setItem('editorTheme', theme);
+            cells.forEach(cellId => {
+                const editor = document.getElementById(`${cellId}-editor`).editorInstance;
+                editor.setTheme(`ace/theme/${theme}`);
+            });
+            updateStatus(`Theme set to ${theme}`);
+        });
+
+        document.getElementById('ace-suggest-toggle').addEventListener('click', function() {
+            const currentlyEnabled = this.classList.contains('on');
+            const newState = !currentlyEnabled;
+            this.classList.toggle('on', newState);
+            this.classList.toggle('off', !newState);
+            this.textContent = newState ? '✓' : '✗';
+            localStorage.setItem('aceSuggestEnabled', newState);
+            cells.forEach(cellId => {
+                const editor = document.getElementById(`${cellId}-editor`).editorInstance;
+                updateAceSuggestions(editor, newState);
+            });
+            updateStatus(`ACE suggestions ${newState ? 'enabled' : 'disabled'}`);
+        });
+        
+        const aceSuggestEnabled = localStorage.getItem('aceSuggestEnabled') !== 'false';
+        const aceToggle = document.getElementById('ace-suggest-toggle');
+        aceToggle.classList.toggle('on', aceSuggestEnabled);
+        aceToggle.classList.toggle('off', !aceSuggestEnabled);
+        aceToggle.textContent = aceSuggestEnabled ? '✓' : '✗';
+
+        const fetchKeywords = (url, callback) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', url, true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        try {
+                            const data = JSON.parse(xhr.responseText);
+                            callback(data);
+                        } catch (e) { 
+                            console.error(`Failed to parse JSON from ${url}:`, e);
+                            callback(null);
+                        }
+                    } else {
+                        console.error(`Failed to load keywords from ${url}. Status: ${xhr.status}`);
+                        callback(null);
+                    }
+                }
+            };
+            xhr.send();
+        };
+        
+        const addKeywords = (keywords) => {
+            if (!keywords) return;
+            for (const key in keywords) {
+                if (keywords.hasOwnProperty(key)) {
+                    keywords[key].forEach(kw => availableKeywords.add(kw));
+                }
+            }
+        };
+
+        async function loadInitialKeywords() {
+            const modulesData = await fetchWithFallback('modules.json');
+            if (modulesData && modulesData.modules) {
+                availableModules = modulesData.modules;
+            }
+            const basicData = await fetchWithFallback('basics.json');
+            if (basicData) {
+                addKeywords(basicData);
+                cells.forEach(cellId => {
+                    const editor = document.getElementById(`${cellId}-editor`).editorInstance;
+                    if (editor) {
+                        updateAceSuggestions(editor, localStorage.getItem('aceSuggestEnabled') !== 'false');
+                    }
+                });
+            }
+        }
+
+        window.setEditorCode = function(newCode) {
+            cells.forEach(cellId => {
+                const cellElement = document.getElementById(cellId);
+                if (cellElement) cellElement.remove();
+            });
+            cells = [];
+            const cellContents = newCode.split(/\n\s*#\s*%%\s*\n/);
+            cellContents.forEach((code, index) => {
+                const cellId = addNewCell(code.trim());
+                if (index === cellContents.length - 1) {
+                    const editor = document.getElementById(`${cellId}-editor`).editorInstance;
+                    editor.focus();
+                }
+            });
+            updateStatus("Code loaded");
+        };
+
+        window.getEditorCode = function() {
+            return cells.map(cellId => {
+                const editor = document.getElementById(`${cellId}-editor`).editorInstance;
+                return editor.getValue();
+            }).join('\n# %%\n');
+        };
+
+        document.getElementById('add-cell-btn').addEventListener('click', () => addNewCell());
+        
+        let aiSettings = {
+            apiUrl: localStorage.getItem('aiApiUrl') || 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent',
+            apiKey: localStorage.getItem('aiApiKey') || '',
+            model: localStorage.getItem('aiModel') || 'models/gemini-pro'
+        };
+        
+        const aiModal = document.createElement('div');
+        aiModal.className = 'ai-modal';
+        aiModal.innerHTML = `<div class="ai-modal-content"><div class="ai-modal-header"><div class="ai-modal-title">AI Response</div><span class="close-ai-modal">×</span></div><div class="ai-response" id="ai-response"></div></div>`;
+        document.body.appendChild(aiModal);
+        
+        const aiSettingsModal = document.createElement('div');
+        aiSettingsModal.className = 'ai-modal';
+        aiSettingsModal.innerHTML = `<div class="ai-modal-content"><div class="ai-modal-header"><div class="ai-modal-title">AI Settings</div><span class="close-ai-modal">×</span></div><form class="ai-settings-form"><div><label for="ai-api-url">API Endpoint:</label><input type="text" id="ai-api-url" value="${aiSettings.apiUrl}"></div><div><label for="ai-api-key">API Key:</label><input type="password" id="ai-api-key" value="${aiSettings.apiKey}"></div><div><label for="ai-model">Model:</label><input type="text" id="ai-model" value="${aiSettings.model}"></div><button type="submit">Save Settings</button></form></div>`;
+        document.body.appendChild(aiSettingsModal);
+        
+        document.querySelectorAll('.close-ai-modal').forEach(btn => {
+            btn.addEventListener('click', () => {
+                aiModal.style.display = 'none';
+                aiSettingsModal.style.display = 'none';
+            });
+        });
+        
+        window.addEventListener('click', (event) => {
+            if (event.target === aiModal) aiModal.style.display = 'none';
+            if (event.target === aiSettingsModal) aiSettingsModal.style.display = 'none';
+        });
+        
+        document.querySelector('.ai-settings-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            aiSettings.apiUrl = document.getElementById('ai-api-url').value;
+            aiSettings.apiKey = document.getElementById('ai-api-key').value;
+            aiSettings.model = document.getElementById('ai-model').value;
+            localStorage.setItem('aiApiUrl', aiSettings.apiUrl);
+            localStorage.setItem('aiApiKey', aiSettings.apiKey);
+            localStorage.setItem('aiModel', aiSettings.model);
+            aiSettingsModal.style.display = 'none';
+            updateStatus("AI settings saved");
+        });
+        
+        function handleAIAction(cellId, action) {
+            const editor = document.getElementById(`${cellId}-editor`).editorInstance;
+            const output = document.getElementById(`${cellId}-output`);
+            const code = editor.getValue();
+            let prompt = '';
+            let context = '';
+            switch(action) {
+                case 'explain-error':
+                    if (output.className.includes('empty')) {
+                        updateStatus("No error to explain");
+                        return;
+                    }
+                    prompt = `Explain this Python error and suggest fixes:\n\nError:\n${output.textContent}\n\nCode:\n${code}`;
+                    context = `Error explanation for cell ${cellCounter}`;
+                    break;
+                case 'explain-code':
+                    prompt = `Explain this Python code in detail:\n\n${code}`;
+                    context = `Code explanation for cell ${cellCounter}`;
+                    break;
+                case 'explain-module':
+                    const imports = extractImports(code);
+                    if (imports.length === 0) {
+                        updateStatus("No imports found in cell");
+                        return;
+                    }
+                    prompt = `Explain these Python modules, their main classes/functions and usage:\n\n${imports.join('\n')}`;
+                    context = `Module explanation for cell ${cellCounter}`;
+                    break;
+                case 'generate-code':
+                    prompt = `Generate Python code based on this description:\n\n${code}`;
+                    context = `Code generation for cell ${cellCounter}`;
+                    break;
+                case 'ai-settings':
+                    aiSettingsModal.style.display = 'block';
+                    return;
+            }
+            updateStatus(`Asking AI: ${context}`);
+            queryAI(prompt, context);
+        }
+        
+        function extractImports(code) {
+            const importPatterns = [
+                /^\s*import\s+([\w\s,]+)(?:\s+as\s+\w+)?/gm,
+                /^\s*from\s+([\w.]+)\s+import\s+([\w\s,]+)(?:\s+as\s+\w+)?/gm
+            ];
+            const imports = [];
+            importPatterns.forEach(pattern => {
+                let match;
+                while ((match = pattern.exec(code)) !== null) {
+                    if (match[0]) imports.push(match[0].trim());
+                }
+            });
+            return imports;
+        }
+        
+        function queryAI(prompt, context) {
+            if (!aiSettings.apiKey) {
+                updateStatus("API key not set - showing demo response.");
+                const simulatedResponse = `* \`tf.device('/GPU:0')\`: This code attempts to run a matrix multiplication on the first GPU (\`/GPU:0\`). If the GPU is available and configured correctly, the matrix multiplication will execute successfully, and the result will be printed. If the GPU is not found, a \`NotFoundError\` exception will be raised.\n\n**Troubleshooting**\n\nBy the way this parser and code viewer or syntax-highlighter is the best, but still some limitations:\nAs u can see the parser is still not parsing *(stars) points so, i want that parser to extract these points and show points and their descrption in an elegant shadowed cardview that looks good, and also extract inline codes separated by back-tick(\`) etc. and format them with a background highlighted design and use monospace font for inline text embedded codes like when explaining something ai might use code that have a common and unique thing which is they use .(dots) without space, they use CAPITAL_LETTER_AND_UNDERSCORE, another thing they use brackets-()[]{}.....\n\n* **CUDA/cuDNN Version Mismatch:** This is the most common problem. Double-check the compatibility matrix between TensorFlow, CUDA, and cuDNN. Use the versions recommended by TensorFlow's documentation.\n\n* **Environment Variables:** Make sure your \`CUDA_HOME\`, \`PATH\`, and \`LD_LIBRARY_PATH\` (Linux) environment variables are set correctly and that they point to the correct CUDA installation directory.`;
+                displayAIResponse(simulatedResponse, context);
+                return;
+            }
+            const requestData = { contents: [{ parts: [{ text: prompt }] }] };
+            const url = `${aiSettings.apiUrl}?key=${aiSettings.apiKey}`;
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', url, true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            const aiResponse = response.candidates?.[0]?.content?.parts?.[0]?.text || "No valid response from AI.";
+                            displayAIResponse(aiResponse, context);
+                            updateStatus("AI response received");
+                        } catch (e) {
+                            updateStatus("Failed to parse AI response");
+                            console.error("AI response error:", e, xhr.responseText);
+                        }
+                    } else {
+                        updateStatus(`AI request failed (${xhr.status})`);
+                        console.error("AI request failed:", xhr.status, xhr.statusText, xhr.responseText);
+                    }
+                }
+            };
+            xhr.send(JSON.stringify(requestData));
+        }
+        
+        function displayAIResponse(rawResponse, context) {
+            const responseContainer = document.getElementById('ai-response');
+            document.querySelector('.ai-modal-title').textContent = context;
+            const codeBlocks = [];
+            let html = rawResponse.replace(/```(\w*)?\r?\n([\s\S]+?)```/g, (match, lang, code) => {
+                const language = lang || 'plaintext';
+                const escapedCode = code.trim().replace(/</g, "<").replace(/>/g, ">");
+                const codeHtml = `<div class="code-wrapper"><button class="copy-btn" onclick="window.copyToClipboard(this)">Copy</button><pre class="language-${language}"><code class="language-${language}">${escapedCode}</code></pre></div>`;
+                codeBlocks.push(codeHtml);
+                return `__CODEBLOCK_${codeBlocks.length - 1}__`;
+            });
+            const inlineCodeBlocks = [];
+            html = html.replace(/`([^`]+?)`/g, (match, code) => {
+                const inlineHtml = `<code class="inline-code">${code}</code>`;
+                inlineCodeBlocks.push(inlineHtml);
+                return `__INLINECODE_${inlineCodeBlocks.length - 1}__`;
+            });
+            html = html.replace(/\b([A-Z_]{3,}|[a-zA-Z0-9_]*[./:()\[\]{}][a-zA-Z0-9_./()\[\]{}'-]+)\b/g, (match) => {
+                return `<code class="inline-code">${match}</code>`;
+            });
+            const finalHtmlBlocks = [];
+            const sections = html.split(/(\n\s*\n)/);
+            sections.forEach(section => {
+                section = section.trim();
+                if (!section) return;
+                if (section.startsWith('* ')) {
+                    const points = section.split('\n');
+                    points.forEach(point => {
+                        if (point.trim().startsWith('* ')) {
+                            let pointHtml = point.trim().substring(2);
+                            pointHtml = pointHtml.replace(/\*\*(.+?):\*\*/g, '<strong>$1:</strong>');
+                            finalHtmlBlocks.push(`<div class="point-card">${pointHtml}</div>`);
+                        }
+                    });
+                } else if (section.startsWith('**') && section.endsWith('**')) {
+                    finalHtmlBlocks.push(`<div class="headline-card">${section.substring(2, section.length - 2)}</div>`);
+                } else {
+                    finalHtmlBlocks.push(`<p>${section.replace(/\n/g, '<br>')}</p>`);
+                }
+            });
+            let finalOutput = finalHtmlBlocks.join('');
+            finalOutput = finalOutput.replace(/__CODEBLOCK_(\d+)__/g, (_, index) => codeBlocks[index]);
+            finalOutput = finalOutput.replace(/__INLINECODE_(\d+)__/g, (_, index) => inlineCodeBlocks[index]);
+            responseContainer.innerHTML = finalOutput;
+            aiModal.style.display = 'block';
+            Prism.highlightAll();
+        }
+        
+        // Initialize the notebook after all functions are defined
+        initializeNotebook();
+        // Trigger the initial keyword load
+        loadInitialKeywords();
+    } // End of onAndroidReady function
+
+    // --- Global functions callable from Java must be outside onAndroidReady ---
+    function showOutput(cellId, result) {
+        if (!cellId) {
+            console.error("showOutput function was called by Java but without a cellId.");
+            return;
+        }
+        const outputElement = document.getElementById(`${cellId}-output`);
+        if (outputElement) {
+            outputElement.innerText = result; 
+            outputElement.classList.remove('empty');
+            document.getElementById('status-message').textContent = `Execution finished for ${cellId}`;
+        } else {
+            console.error(`Java called back with cellId "${cellId}", but no output element was found on the page.`);
+        }
+    }
+
+    function copyToClipboard(btn) {
+        const code = btn.closest('.code-wrapper').querySelector('pre code').innerText;
+        navigator.clipboard.writeText(code).then(() => {
+            btn.innerText = "Copied!";
+            setTimeout(() => { btn.innerText = "Copy"; }, 2000);
+        });
+    }
+</script>
+</body>
+</html>
