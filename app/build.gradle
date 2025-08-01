@@ -20,8 +20,6 @@ android {
                 // Core scientific stack
                 install "numpy"
                 install "sympy"
-                install "requests"
-                install "matplotlib"
             }
         }
         ndk {
