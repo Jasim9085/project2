@@ -3,6 +3,7 @@ package com.chaquo.python.console;
 import android.app.Activity;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
+import android.widget.Toast;
 
 import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
@@ -10,8 +11,8 @@ import com.chaquo.python.Python;
 import org.json.JSONObject;
 
 public class WebAppInterface {
-    private Activity activity;
-    private WebView webView;
+    private final Activity activity;
+    private final WebView webView;
 
     WebAppInterface(Activity activity, WebView webView) {
         this.activity = activity;
@@ -39,16 +40,19 @@ public class WebAppInterface {
 
             // We need to send the result back to the WebView on the UI thread.
             activity.runOnUiThread(() -> {
-                // Escape the result for safe transport within a JavaScript string
-                String escapedResult = JSONObject.quote(result);
-
-                // Call the 'showOutput' JavaScript function with the cellId and result
-                webView.evaluateJavascript("javascript:showOutput('" + cellId + "', " + escapedResult + ");", null);
+                try {
+                    String escapedResult = JSONObject.quote(result);
+                    String jsCall = "javascript:showOutput('" + cellId + "', " + escapedResult + ");";
+                    webView.evaluateJavascript(jsCall, null);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Toast.makeText(activity, "Error sending result to WebView: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                }
             });
 
         } catch (Exception e) {
-            // It's good practice to handle potential errors
             e.printStackTrace();
+            Toast.makeText(activity, "Python Execution Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 }
