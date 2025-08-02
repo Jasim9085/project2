@@ -16,7 +16,17 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         python {
             version "3.12"
-            
+            pip {
+                install "numpy"
+                install "mpmath"
+                install "sympy"
+                install "matplotlib"
+                install "networkx"
+                install "pandas"
+                install "tinygrad
+                install "pulp"
+                install "pint"
+            }
         }
         ndk {
             abiFilters "arm64-v8a", "x86_64"
