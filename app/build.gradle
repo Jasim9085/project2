@@ -18,7 +18,9 @@ android {
             version "3.12"
             pip {
                 install "pyvalem"
-                install "physicscalc"
+                install "molmass"
+                install "chemparse"
+                install "requests"
             }
         }
         ndk {
