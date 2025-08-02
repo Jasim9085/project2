@@ -17,9 +17,11 @@ android {
         python {
             version "3.12"
             pip {
-                install "sympy"
-                install "physicscalc"
                 install "pyvalem"
+                install "physicscalc"
+                install "chemlib"
+                install "requests"
+                install "tqdm"
             }
         }
         ndk {
