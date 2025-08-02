@@ -47,8 +47,7 @@ public class NotebookActivity extends AppCompatActivity {
             if (!Python.isStarted()) {
                 Python.start(new AndroidPlatform(getApplicationContext()));
             }
-            Python py = Python.getInstance();
-
+            
             String modulePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/.JupyMini/modules";
             Python py = Python.getInstance();
             PyObject sys = py.getModule("sys");
