@@ -45,6 +45,16 @@ public class NotebookActivity extends AppCompatActivity {
             if (!Python.isStarted()) {
                 Python.start(new AndroidPlatform(getApplicationContext()));
             }
+            Python py = Python.getInstance();
+
+            String modulePath = Environment.getExternalStorageDirectory().getAbsolutePath() + ".JupyMini/modules";
+            String addPathScript = String.format(
+                "import sys\n" +
+                "if r'%s' not in sys.path:\n" +
+                "    sys.path.append(r'%s')\n",
+                modulePath, modulePath
+            );
+            py.getModule("__main__").eval(addPathScript);
 
             WebSettings webSettings = webView.getSettings();
             webSettings.setJavaScriptEnabled(true);
