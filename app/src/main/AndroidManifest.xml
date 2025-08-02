@@ -27,7 +27,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".console.NotebookActivity"
+            android:name=".NotebookActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:exported="false" />
     </application>
