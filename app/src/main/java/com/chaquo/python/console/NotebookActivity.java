@@ -3,6 +3,7 @@ package com.chaquo.python.console;
 import android.content.Context;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -54,7 +55,7 @@ public class NotebookActivity extends AppCompatActivity {
                 "    sys.path.append(r'%s')\n",
                 modulePath, modulePath
             );
-            py.getModule("__main__").eval(addPathScript);
+            py.getModule("__main__").exec(addPathScript);
 
             WebSettings webSettings = webView.getSettings();
             webSettings.setJavaScriptEnabled(true);
