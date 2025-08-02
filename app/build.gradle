@@ -23,7 +23,7 @@ android {
                 install "matplotlib"
                 install "networkx"
                 install "pandas"
-                install "tinygrad
+                install "tinygrad"
                 install "pulp"
                 install "pint"
             }
