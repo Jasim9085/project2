@@ -19,7 +19,9 @@ android {
             pip {
                 install "pyvalem"
                 install "physicscalc"
-                install "chemlib"
+                install "periodictable"
+                install "molmass"
+                install "chemparse"
                 install "requests"
                 install "tqdm"
             }
