@@ -1,6 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <!-- Dark Theme Colors -->
+    <color name="darkPrimary">#1F1F1F</color>
+    <color name="darkPrimaryDark">#121212</color>
+    <color name="darkAccent">#BB86FC</color>
+    <color name="darkBackground">#000000</color>
+    <color name="darkText">#FFFFFF</color>
+
+    <!-- Optional fallback colors if already used elsewhere -->
+    <color name="colorPrimary">#1F1F1F</color>
+    <color name="colorPrimaryDark">#121212</color>
+    <color name="colorAccent">#BB86FC</color>
 </resources>
