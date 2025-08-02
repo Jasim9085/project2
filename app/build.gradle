@@ -19,7 +19,7 @@ android {
             pip {
                 install "sympy"
                 install "physicscalc"
-                install "tinygrad"
+                install "pyvalem"
             }
         }
         ndk {
