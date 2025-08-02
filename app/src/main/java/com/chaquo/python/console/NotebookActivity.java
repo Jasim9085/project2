@@ -25,17 +25,17 @@ public class NotebookActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         try {
-            setContentView(R.layout.activity_notebook);  // Direct reference
+            setContentView(R.layout.activity_notebook);  // MUST be inside try-catch
 
-            if (!Python.isStarted()) {
-                Python.start(new AndroidPlatform(getApplicationContext()));
-            }
-
-            webView = findViewById(R.id.webview);
             rootView = findViewById(android.R.id.content);
+            webView = findViewById(R.id.webview);
 
             if (webView == null) {
                 throw new NullPointerException("WebView not found in layout.");
+            }
+
+            if (!Python.isStarted()) {
+                Python.start(new AndroidPlatform(getApplicationContext()));
             }
 
             WebSettings webSettings = webView.getSettings();
@@ -57,8 +57,12 @@ public class NotebookActivity extends AppCompatActivity {
             webView.setWebViewClient(new WebViewClient() {
                 @Override
                 public void onPageFinished(WebView view, String url) {
-                    super.onPageFinished(view, url);
-                    view.evaluateJavascript("javascript:onAndroidReady();", null);
+                    try {
+                        super.onPageFinished(view, url);
+                        view.evaluateJavascript("javascript:onAndroidReady();", null);
+                    } catch (Exception e) {
+                        handleError("WebViewClient Error", e);
+                    }
                 }
             });
 
@@ -66,41 +70,63 @@ public class NotebookActivity extends AppCompatActivity {
             webView.loadUrl("file:///android_asset/jupyter_ui.html");
 
         } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            handleError("Error during onCreate", e);
         }
     }
 
     private void setupKeyboardListener() {
-        keyboardListener = new ViewTreeObserver.OnGlobalLayoutListener() {
-            private final Rect r = new Rect();
-            private boolean wasOpened = false;
+        try {
+            keyboardListener = new ViewTreeObserver.OnGlobalLayoutListener() {
+                private final Rect r = new Rect();
+                private boolean wasOpened = false;
 
-            @Override
-            public void onGlobalLayout() {
-                rootView.getWindowVisibleDisplayFrame(r);
-                int screenHeight = rootView.getRootView().getHeight();
-                int keyboardHeight = screenHeight - r.bottom;
-                boolean isKeyboardVisible = keyboardHeight > screenHeight * 0.15;
+                @Override
+                public void onGlobalLayout() {
+                    try {
+                        rootView.getWindowVisibleDisplayFrame(r);
+                        int screenHeight = rootView.getRootView().getHeight();
+                        int keyboardHeight = screenHeight - r.bottom;
+                        boolean isKeyboardVisible = keyboardHeight > screenHeight * 0.15;
 
-                if (isKeyboardVisible != wasOpened) {
-                    wasOpened = isKeyboardVisible;
-                    int keyboardHeightInDp = (int) (keyboardHeight / getResources().getDisplayMetrics().density);
-                    final String script = "javascript:onKeyboardVisibilityChanged(" + isKeyboardVisible + ", " + keyboardHeightInDp + ");";
-                    if (webView != null) {
-                        webView.post(() -> webView.evaluateJavascript(script, null));
+                        if (isKeyboardVisible != wasOpened) {
+                            wasOpened = isKeyboardVisible;
+                            int keyboardHeightInDp = (int) (keyboardHeight / getResources().getDisplayMetrics().density);
+                            final String script = "javascript:onKeyboardVisibilityChanged(" + isKeyboardVisible + ", " + keyboardHeightInDp + ");";
+                            if (webView != null) {
+                                webView.post(() -> {
+                                    try {
+                                        webView.evaluateJavascript(script, null);
+                                    } catch (Exception e) {
+                                        handleError("evaluateJavascript Error", e);
+                                    }
+                                });
+                            }
+                        }
+                    } catch (Exception e) {
+                        handleError("Keyboard listener error", e);
                     }
                 }
-            }
-        };
-        rootView.getViewTreeObserver().addOnGlobalLayoutListener(keyboardListener);
+            };
+            rootView.getViewTreeObserver().addOnGlobalLayoutListener(keyboardListener);
+        } catch (Exception e) {
+            handleError("setupKeyboardListener Error", e);
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (keyboardListener != null && rootView != null) {
-            rootView.getViewTreeObserver().removeOnGlobalLayoutListener(keyboardListener);
+        try {
+            if (keyboardListener != null && rootView != null) {
+                rootView.getViewTreeObserver().removeOnGlobalLayoutListener(keyboardListener);
+            }
+        } catch (Exception e) {
+            handleError("onDestroy Error", e);
         }
+    }
+
+    private void handleError(String source, Exception e) {
+        e.printStackTrace();
+        Toast.makeText(this, source + ": " + e.getMessage(), Toast.LENGTH_LONG).show();
     }
 }
