@@ -1,14 +1,20 @@
 package com.chaquo.python.console;
 
+import android.content.Context;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.view.inputmethod.InputMethodManager;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.EditText;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.chaquo.python.Python;
@@ -19,6 +25,7 @@ public class NotebookActivity extends AppCompatActivity {
     private ViewTreeObserver.OnGlobalLayoutListener keyboardListener;
     private WebView webView;
     private View rootView;
+    private EditText keyboardInput; // ✅ Hidden native EditText
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,9 +36,10 @@ public class NotebookActivity extends AppCompatActivity {
 
             rootView = findViewById(android.R.id.content);
             webView = findViewById(R.id.webview);
+            keyboardInput = findViewById(R.id.keyboardInput); // ✅ Bind the EditText
 
-            if (webView == null) {
-                throw new NullPointerException("WebView not found in layout.");
+            if (webView == null || keyboardInput == null) {
+                throw new NullPointerException("WebView or keyboardInput not found in layout.");
             }
 
             if (!Python.isStarted()) {
@@ -53,6 +61,27 @@ public class NotebookActivity extends AppCompatActivity {
             WebView.setWebContentsDebuggingEnabled(true);
 
             webView.addJavascriptInterface(new WebAppInterface(this, webView), "Android");
+
+            // ✅ KeyboardBridge interface for JS
+            webView.addJavascriptInterface(new Object() {
+                @JavascriptInterface
+                public void focus() {
+                    runOnUiThread(() -> {
+                        keyboardInput.requestFocus();
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.showSoftInput(keyboardInput, InputMethodManager.SHOW_IMPLICIT);
+                    });
+                }
+
+                @JavascriptInterface
+                public void blur() {
+                    runOnUiThread(() -> {
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(keyboardInput.getWindowToken(), 0);
+                        keyboardInput.clearFocus();
+                    });
+                }
+            }, "KeyboardBridge");
 
             webView.setWebViewClient(new WebViewClient() {
                 @Override
@@ -122,6 +151,17 @@ public class NotebookActivity extends AppCompatActivity {
             }
         } catch (Exception e) {
             handleError("onDestroy Error", e);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (keyboardInput != null && keyboardInput.hasFocus()) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(keyboardInput.getWindowToken(), 0);
+            keyboardInput.clearFocus();
+        } else {
+            super.onBackPressed();
         }
     }
 
