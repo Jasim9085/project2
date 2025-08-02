@@ -16,11 +16,7 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         python {
             version "3.12"
-            pip {
-                // Core scientific stack
-                install "numpy"
-                install "sympy"
-            }
+            
         }
         ndk {
             abiFilters "arm64-v8a", "x86_64"
