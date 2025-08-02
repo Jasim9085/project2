@@ -20,7 +20,9 @@ android {
                 install "pyvalem"
                 install "molmass"
                 install "chemparse"
+                install "periodictable"
                 install "requests"
+                install "asyncio"
             }
         }
         ndk {
