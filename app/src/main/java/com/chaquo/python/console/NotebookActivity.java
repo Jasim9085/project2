@@ -16,7 +16,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(Utils.resId(this, "layout", "activity_console"));
+        setContentView(Utils.resId(this, "layout", "activity_notebook"));
 
         if (!Python.isStarted()) {
             Python.start(new AndroidPlatform(getApplicationContext()));
