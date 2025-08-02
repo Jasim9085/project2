@@ -2,7 +2,7 @@ name: Android CI Build
 
 on:
   push:
-    branches: [ "main", "master"]
+    branches: [ "main", "master" ]
 
 jobs:
   build:
@@ -17,26 +17,29 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          # The "cache: gradle" line has been removed to force a clean build.
-
-      - name: Set up Android NDK
-        uses: nttld/setup-ndk@v1
-        id: setup_ndk
-        with:
-          ndk-version: r26b
 
       - name: Create local.properties
-        run: |
-          echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
-          echo "ndk.dir=${{ steps.setup_ndk.outputs.ndk-path }}" >> local.properties
+        run: echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
 
-      - name: Clean Gradle
-        run: rm -rf ~/.gradle
+      - name: Delete local caches
+        run: |
+          rm -rf ~/.cache
+          rm -rf ~/.gradle/caches
+          rm -rf app/build
+          rm -rf .gradle
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Clean Python package cache
+        run: pip cache purge
+
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
       - name: Build with Gradle
-        # We can remove --no-daemon now as the clean state will solve the issue.
         run: ./gradlew clean assembleDebug --rerun-tasks
 
       - name: Upload APK
