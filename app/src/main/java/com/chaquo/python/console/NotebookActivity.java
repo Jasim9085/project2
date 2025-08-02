@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Environment;
+import com.chaquo.python.PyObject;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -48,14 +49,11 @@ public class NotebookActivity extends AppCompatActivity {
             }
             Python py = Python.getInstance();
 
-            String modulePath = Environment.getExternalStorageDirectory().getAbsolutePath() + ".JupyMini/modules";
-            String addPathScript = String.format(
-                "import sys\n" +
-                "if r'%s' not in sys.path:\n" +
-                "    sys.path.append(r'%s')\n",
-                modulePath, modulePath
-            );
-            py.getModule("__main__").exec(addPathScript);
+            String modulePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/.JupyMini/modules";
+            Python py = Python.getInstance();
+            PyObject sys = py.getModule("sys");
+            sys.get("path").callAttr("append", modulePath);
+            
 
             WebSettings webSettings = webView.getSettings();
             webSettings.setJavaScriptEnabled(true);
